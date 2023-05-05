@@ -1,11 +1,14 @@
-# fedora-36-base
+# fedora-38-base
 # Copyright (C) 2021 Intel Corporation
 # Copyright (C) 2021-2022 Konsulko Group
+# Copyright (C) 2023 Linaro Ltd
 #
 # SPDX-License-Identifier: GPL-2.0-only
 #
 
-FROM fedora:36
+FROM fedora:38
+
+ENV LANG C.UTF-8
 
 RUN dnf -y update && \
     dnf -y install \
@@ -54,6 +57,8 @@ RUN dnf -y update && \
         \
         # These packages were added because of reasons such as fewer packages
         # being in the container image by default
+        iproute \
+        iputils \
         fluxbox \
         glibc-langpack-en \
         hostname \
@@ -63,19 +68,7 @@ RUN dnf -y update && \
         sudo \
         screen \
         tigervnc-server \
-        tmux && \
-    cp -af /etc/skel/ /etc/vncskel/ && \
-    echo "export DISPLAY=1" >>/etc/vncskel/.bashrc && \
-    mkdir  /etc/vncskel/.vnc && \
-    echo "" | vncpasswd -f > /etc/vncskel/.vnc/passwd && \
-    chmod 0600 /etc/vncskel/.vnc/passwd && \
-    useradd -U -m yoctouser
+        tmux \
+    glibc-locale-source \
+    glibc-langpack-en
 
-COPY build-install-dumb-init.sh /
-RUN  bash /build-install-dumb-init.sh && \
-     rm /build-install-dumb-init.sh && \
-     dnf -y clean all
-
-USER yoctouser
-WORKDIR /home/yoctouser
-CMD /bin/bash
